@@ -1,0 +1,53 @@
+---
+title: "Course_Project_IS_part1"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+```
+
+We theoretical mean and standard deviation, respectively, of the exponential distribution are 1/lambda. These are to be compared to simulated values for a distribution of 1000 averages of 40 random exponentials:
+
+```{r}
+set.seed(1)
+
+averages = 1000
+n = 40
+lambda = 0.2
+
+mns = NULL
+for (i in 1 : 1000) mns = c(mns, mean(rexp(n, lambda)))
+
+# normalize means
+# mns = mns/n
+
+sim_mean = mean(mns)
+expected_mean = 1/lambda
+
+var_mns = var(mns)
+```
+
+1. The sample mean is `r round(sim_mean,3)` and the theoretical mean is `r round(expected_mean)`.
+
+2. The sample variance is `r round(var_mns,3)` and the theoretical variance is `r 1/40*(1/lambda)^2`.
+
+3. The means are normally distributed, see figure below.
+
+```{r, fig.width = 5, fig.height = 4, fig.align = "center"}
+
+
+g = ggplot(data.frame(y = mns), aes(x = y)) +
+    geom_histogram(aes(y = ..density..), binwidth = 0.2,
+                   color = "black", fill = "white") +
+    stat_function(fun = dnorm, geom = "line",
+            args = list(mean = 1/lambda,
+            sd = 1/(lambda*sqrt(n))),
+            size = 1, col = "blue") + 
+    ylab("Probability density") + 
+    xlab("Mean") + 
+    ggtitle("Comparison of simulated and theoretical\n exponential distribution")
+g    
+```

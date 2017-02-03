@@ -1,0 +1,73 @@
+---
+title: "Course_Project_IS_part2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(ggplot2)
+```
+
+Dataset: The effect of Vitamin C on Tooth Growth in Guinea Pigs. The variables of the data set are len = tooth length, supp = supplement type (VC or OJ) and dose = does in milligrams per day.
+
+```{r}
+data("ToothGrowth")
+data = ToothGrowth
+
+summary(data)
+```
+
+Plot length against dose for every supplement.
+```{r, fig.width = 5, fig.height= 3.5, fig.align = "center"}
+g <- ggplot(data, aes(x = dose, y = len, color = supp)) +
+    geom_point() + geom_smooth(method = "lm")
+g
+```
+
+Based on this plot there are different aspects that can be investigated such as: Does the overall tooth length depend on the supplement or does the tooth length depend on the dose or does the tooth length depend on the supplement for a given dose etc... In order to investigate these aspects one could perform hypothesis testing. 
+
+Let us look at the last aspect: Does the tooth length depend on the supplement for a given dose. 
+```{r, fig.width = 5, fig.height = 3.5, fig.align = "center"}
+data$dose = as.factor(data$dose)
+
+g <- ggplot(data, aes(x = dose, y = len, color = supp)) +
+    geom_boxplot() + geom_smooth(method = "lm")
+g
+```
+
+For the given problem statement the answer is quite clear for both dose = 1 and dose = 2. So lets look at the problem for dose = 0.5. Let us state the null hypothesis: The means of the tooth length are independent of supplement. The alternative hypothesis is: The means of the tooth length differ for different supplement. 
+
+```{r}
+len_p5_VC = data[data$dose == "0.5" & data$supp == "VC",]$len
+len_p5_OJ = data[data$dose == "0.5" & data$supp == "OJ",]$len
+
+t.test(len_p5_VC, len_p5_OJ, paired = FALSE) 
+
+```
+The result of the test lets me conclude (the small p-value < 0.01), that the tooth length is indeed different for each of the two given supplement at dose = 0.5. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
