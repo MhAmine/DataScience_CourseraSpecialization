@@ -1,0 +1,126 @@
+---
+title: "Course Project applied machine learning"
+output: html_document
+---
+Required libraries: library(caret), library(xgboost)
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+
+library(caret)
+library(xgboost)
+
+library(doMC)
+registerDoMC(cores = 2)
+```
+
+Read train and test set
+```{r}
+train = read.csv("pml-training.csv")
+test = read.csv("pml-testing.csv")
+```
+
+I do not split the date into a train and cross validation set, since
+the xgboost algorithm has a built in cross validation function, which
+I am using.
+
+Remove columns that have empty factor, NULL or NA
+```{r}
+hasNoNA = complete.cases(t(train))
+
+trainComplete = train[,hasNoNA]
+testComplete = test[,hasNoNA]
+
+toRemove = apply(trainComplete, 2, function(col) ifelse(any(col == ''), TRUE, FALSE))
+
+trainComplete = trainComplete[,!toRemove]
+testComplete = testComplete[,!toRemove]
+
+rm(hasNoNA)
+rm(toRemove)
+```
+
+Convert names into numbers for xgboost
+```{r}
+convertNamesToNumbers <- function(x){
+    if (x == "carlitos"){
+        return(1)
+    }
+    else if (x == "pedro"){
+        return(2)    
+    }
+    else if (x == "adelmo"){
+        return(3)
+    }
+    else if (x == "charles"){
+        return(4)
+    }
+    else if (x == "eurico"){
+        return(5)
+    }
+    else if (x == "jeremy"){
+        return(6)
+    }
+}
+
+trainComplete$user_name = as.character(trainComplete$user_name)
+trainComplete$user_name = sapply(trainComplete$user_name, convertNamesToNumbers)
+
+testComplete$user_name = as.character(testComplete$user_name)
+testComplete$user_name = sapply(testComplete$user_name, convertNamesToNumbers)
+```
+
+Delete all the nun-numeric columns for xgboost
+```{r, include = FALSE}
+train.label = as.numeric(trainComplete$classe)-1
+
+train.data = trainComplete[, c(2,8:ncol(trainComplete)-1)]
+test.data = testComplete[, c(2,8:ncol(testComplete)-1)]
+
+```
+
+Train xgboost model, first do cross validation and then feed best parameters into model for prediction.
+```{r}
+train.model <- xgb.DMatrix(data = as.matrix(train.data), label = train.label)
+
+num_class = 5
+nthread = 4
+nfold = 5
+nround = 20
+max_depth = 5
+eta = 1
+
+params <- list(objective = "multi:softprob",
+      num_class = num_class,
+      max_depth = max_depth,
+      eta = eta
+      )
+
+cv <- xgb.cv(train.model, params = params, nthread = nthread, nfold = nfold, nround = nround)
+```
+I stop the iteration after 20 rounds, because the test set error does not improve any more.
+
+Establish model for prediction
+```{r}
+model <- xgboost(train.model, max.depth = max_depth, eta = eta, nthread = nthread, nround = nround, num_class = num_class, objective = "multi:softmax")
+
+# prediction on test data
+predictions <- predict(model, newdata = as.matrix(test.data))
+predictions
+```
+The equivalences are: A=0, B=1 etc....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
