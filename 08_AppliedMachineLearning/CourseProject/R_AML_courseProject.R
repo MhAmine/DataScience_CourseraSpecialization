@@ -1,0 +1,5 @@
+setwd("/Users/peterweber/Dropbox/OnlineCourses/2015_DataScience_Spec/2016_AppliedMachineLearning/CourseProject/")
+
+train = read.csv("pml-training.csv")
+
+View(train)

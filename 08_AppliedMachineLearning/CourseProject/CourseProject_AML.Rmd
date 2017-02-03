@@ -1,11 +1,15 @@
 ---
 title: "Course Project applied machine learning"
-output: html_document
+output:
+  github_document:
+    html_preview: true
 ---
-Required libraries: library(caret), library(xgboost)
+
+Required libraries: library(caret), library(xgboost) and register multicore support with library(doMC) and register...
+
 ```{r setup, include=FALSE}
 rm(list=ls())
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 library(caret)
 library(xgboost)
@@ -14,17 +18,18 @@ library(doMC)
 registerDoMC(cores = 2)
 ```
 
-Read train and test set
+First step is reading the training and testing set.
+
 ```{r}
 train = read.csv("pml-training.csv")
 test = read.csv("pml-testing.csv")
 ```
 
-I do not split the date into a train and cross validation set, since
-the xgboost algorithm has a built in cross validation function, which
-I am using.
+I do not split the data into a train and cross validation set, since
+the xgboost algorithm, which I will use, has a built in cross validation function.
 
-Remove columns that have empty factor, NULL or NA
+Next, Remove columns that have empty factor, NULL or NA to have a dense dataset and remove columns
+with little information.
 ```{r}
 hasNoNA = complete.cases(t(train))
 
@@ -40,7 +45,7 @@ rm(hasNoNA)
 rm(toRemove)
 ```
 
-Convert names into numbers for xgboost
+Next, I convert names into numbers. This is necessary for xgboost, since it can deal only with numeric data. I also delete all the nun-numeric columns such as timestamp, new window etc...
 ```{r}
 convertNamesToNumbers <- function(x){
     if (x == "carlitos"){
@@ -70,7 +75,6 @@ testComplete$user_name = as.character(testComplete$user_name)
 testComplete$user_name = sapply(testComplete$user_name, convertNamesToNumbers)
 ```
 
-Delete all the nun-numeric columns for xgboost
 ```{r, include = FALSE}
 train.label = as.numeric(trainComplete$classe)-1
 
@@ -98,9 +102,17 @@ params <- list(objective = "multi:softprob",
 
 cv <- xgb.cv(train.model, params = params, nthread = nthread, nfold = nfold, nround = nround)
 ```
-I stop the iteration after 20 rounds, because the test set error does not improve any more.
 
-Establish model for prediction
+I stop the iteration after 20 rounds, because the test error for a 5-fold cross validation does not improve any more. The parameters used for xgboost are 
+
+* num_class = 5, nthread = 4, nfold = 5, nround = 20, max_depth = 5, eta = 1 
+* params <- list(objective = "multi:softprob",
+      num_class = num_class,
+      max_depth = max_depth,
+      eta = eta
+      )
+
+Establish model for prediction with these parameters
 ```{r}
 model <- xgboost(train.model, max.depth = max_depth, eta = eta, nthread = nthread, nround = nround, num_class = num_class, objective = "multi:softmax")
 
@@ -108,9 +120,7 @@ model <- xgboost(train.model, max.depth = max_depth, eta = eta, nthread = nthrea
 predictions <- predict(model, newdata = as.matrix(test.data))
 predictions
 ```
-The equivalences are: A=0, B=1 etc....
-
-
+These are the predictions on the test set. The equivalences are: A=0, B=1 etc....The accuracy on the test set is 100%.
 
 
 

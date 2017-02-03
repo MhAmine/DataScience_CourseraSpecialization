@@ -13,26 +13,26 @@ Next, I convert names into numbers. This is necessary for xgboost, since it can 
 
 Train xgboost model, first do cross validation and then feed best parameters into model for prediction.
 
-    ## [1]  train-merror:0.183697+0.008014  test-merror:0.192130+0.009507 
-    ## [2]  train-merror:0.080726+0.007810  test-merror:0.091530+0.001932 
-    ## [3]  train-merror:0.039357+0.006611  test-merror:0.048975+0.007138 
-    ## [4]  train-merror:0.019634+0.004138  test-merror:0.026704+0.004013 
-    ## [5]  train-merror:0.008664+0.002191  test-merror:0.013862+0.002939 
-    ## [6]  train-merror:0.004650+0.001350  test-merror:0.009836+0.002617 
-    ## [7]  train-merror:0.002344+0.000551  test-merror:0.007237+0.001918 
-    ## [8]  train-merror:0.001134+0.000168  test-merror:0.004689+0.000525 
-    ## [9]  train-merror:0.000561+0.000357  test-merror:0.004077+0.000534 
-    ## [10] train-merror:0.000293+0.000131  test-merror:0.003058+0.000581 
-    ## [11] train-merror:0.000178+0.000158  test-merror:0.002752+0.000813 
-    ## [12] train-merror:0.000076+0.000074  test-merror:0.001937+0.000657 
-    ## [13] train-merror:0.000051+0.000074  test-merror:0.001886+0.000637 
-    ## [14] train-merror:0.000013+0.000026  test-merror:0.001886+0.000472 
-    ## [15] train-merror:0.000013+0.000026  test-merror:0.001376+0.000306 
-    ## [16] train-merror:0.000000+0.000000  test-merror:0.001223+0.000250 
-    ## [17] train-merror:0.000000+0.000000  test-merror:0.001274+0.000426 
-    ## [18] train-merror:0.000000+0.000000  test-merror:0.001172+0.000444 
-    ## [19] train-merror:0.000000+0.000000  test-merror:0.001019+0.000483 
-    ## [20] train-merror:0.000000+0.000000  test-merror:0.000917+0.000473
+    ## [1]  train-merror:0.185723+0.009116  test-merror:0.193964+0.009720 
+    ## [2]  train-merror:0.079490+0.003996  test-merror:0.090715+0.006173 
+    ## [3]  train-merror:0.035394+0.007894  test-merror:0.045253+0.008088 
+    ## [4]  train-merror:0.015034+0.002523  test-merror:0.023289+0.004486 
+    ## [5]  train-merror:0.006918+0.000717  test-merror:0.013403+0.002538 
+    ## [6]  train-merror:0.004001+0.000891  test-merror:0.008714+0.001846 
+    ## [7]  train-merror:0.002586+0.000567  test-merror:0.007033+0.001436 
+    ## [8]  train-merror:0.001248+0.000420  test-merror:0.004841+0.001395 
+    ## [9]  train-merror:0.000637+0.000176  test-merror:0.003363+0.001303 
+    ## [10] train-merror:0.000319+0.000146  test-merror:0.002497+0.001085 
+    ## [11] train-merror:0.000153+0.000087  test-merror:0.002089+0.000796 
+    ## [12] train-merror:0.000064+0.000057  test-merror:0.001733+0.000828 
+    ## [13] train-merror:0.000038+0.000031  test-merror:0.001478+0.000589 
+    ## [14] train-merror:0.000026+0.000031  test-merror:0.001172+0.000473 
+    ## [15] train-merror:0.000000+0.000000  test-merror:0.000968+0.000374 
+    ## [16] train-merror:0.000000+0.000000  test-merror:0.000815+0.000338 
+    ## [17] train-merror:0.000000+0.000000  test-merror:0.000815+0.000494 
+    ## [18] train-merror:0.000000+0.000000  test-merror:0.000612+0.000346 
+    ## [19] train-merror:0.000000+0.000000  test-merror:0.000561+0.000297 
+    ## [20] train-merror:0.000000+0.000000  test-merror:0.000561+0.000297
 
 I stop the iteration after 20 rounds, because the test error for a 5-fold cross validation does not improve any more. The parameters used for xgboost are
 
@@ -64,4 +64,4 @@ Establish model for prediction with these parameters
 
     ##  [1] 1 0 1 0 0 4 3 1 0 0 1 2 1 0 4 4 0 1 1 1
 
-These are the predictions on the test set. The equivalences are: A=0, B=1 etc....
+These are the predictions on the test set. The equivalences are: A=0, B=1 etc....The accuracy on the test set is 100%.
