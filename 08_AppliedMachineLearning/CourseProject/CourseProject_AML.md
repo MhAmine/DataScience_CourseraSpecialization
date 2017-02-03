@@ -1,116 +1,45 @@
 Course Project applied machine learning
 ================
 
-Required libraries: library(caret), library(xgboost)
+Required libraries: library(caret), library(xgboost) and register multicore support with library(doMC) and register...
 
-Read train and test set
+First step is reading the training and testing set.
 
-``` r
-train = read.csv("pml-training.csv")
-test = read.csv("pml-testing.csv")
-```
+I do not split the data into a train and cross validation set, since the xgboost algorithm, which I will use, has a built in cross validation function.
 
-I do not split the date into a train and cross validation set, since the xgboost algorithm has a built in cross validation function, which I am using.
+Next, Remove columns that have empty factor, NULL or NA to have a dense dataset and remove columns with little information.
 
-Remove columns that have empty factor, NULL or NA
-
-``` r
-hasNoNA = complete.cases(t(train))
-
-trainComplete = train[,hasNoNA]
-testComplete = test[,hasNoNA]
-
-toRemove = apply(trainComplete, 2, function(col) ifelse(any(col == ''), TRUE, FALSE))
-
-trainComplete = trainComplete[,!toRemove]
-testComplete = testComplete[,!toRemove]
-
-rm(hasNoNA)
-rm(toRemove)
-```
-
-Convert names into numbers for xgboost
-
-``` r
-convertNamesToNumbers <- function(x){
-    if (x == "carlitos"){
-        return(1)
-    }
-    else if (x == "pedro"){
-        return(2)    
-    }
-    else if (x == "adelmo"){
-        return(3)
-    }
-    else if (x == "charles"){
-        return(4)
-    }
-    else if (x == "eurico"){
-        return(5)
-    }
-    else if (x == "jeremy"){
-        return(6)
-    }
-}
-
-trainComplete$user_name = as.character(trainComplete$user_name)
-trainComplete$user_name = sapply(trainComplete$user_name, convertNamesToNumbers)
-
-testComplete$user_name = as.character(testComplete$user_name)
-testComplete$user_name = sapply(testComplete$user_name, convertNamesToNumbers)
-```
-
-Delete all the nun-numeric columns for xgboost
+Next, I convert names into numbers. This is necessary for xgboost, since it can deal only with numeric data. I also delete all the nun-numeric columns such as timestamp, new window etc...
 
 Train xgboost model, first do cross validation and then feed best parameters into model for prediction.
 
-``` r
-train.model <- xgb.DMatrix(data = as.matrix(train.data), label = train.label)
+    ## [1]  train-merror:0.189112+0.004398  test-merror:0.191824+0.011920 
+    ## [2]  train-merror:0.079847+0.011519  test-merror:0.087555+0.007895 
+    ## [3]  train-merror:0.035139+0.005650  test-merror:0.040617+0.006561 
+    ## [4]  train-merror:0.016156+0.003121  test-merror:0.023544+0.006754 
+    ## [5]  train-merror:0.009263+0.002843  test-merror:0.014523+0.005793 
+    ## [6]  train-merror:0.004485+0.001402  test-merror:0.009937+0.003000 
+    ## [7]  train-merror:0.002446+0.000882  test-merror:0.006880+0.001926 
+    ## [8]  train-merror:0.001211+0.000317  test-merror:0.004841+0.001395 
+    ## [9]  train-merror:0.000624+0.000265  test-merror:0.003465+0.001075 
+    ## [10] train-merror:0.000191+0.000114  test-merror:0.002395+0.001039 
+    ## [11] train-merror:0.000102+0.000065  test-merror:0.002293+0.000773 
+    ## [12] train-merror:0.000077+0.000062  test-merror:0.001580+0.000812 
+    ## [13] train-merror:0.000013+0.000026  test-merror:0.001121+0.000676 
+    ## [14] train-merror:0.000000+0.000000  test-merror:0.000968+0.000710 
+    ## [15] train-merror:0.000000+0.000000  test-merror:0.001020+0.000645 
+    ## [16] train-merror:0.000000+0.000000  test-merror:0.000816+0.000672 
+    ## [17] train-merror:0.000000+0.000000  test-merror:0.000867+0.000676 
+    ## [18] train-merror:0.000000+0.000000  test-merror:0.000867+0.000676 
+    ## [19] train-merror:0.000000+0.000000  test-merror:0.000816+0.000691 
+    ## [20] train-merror:0.000000+0.000000  test-merror:0.000765+0.000684
 
-num_class = 5
-nthread = 4
-nfold = 5
-nround = 20
-max_depth = 5
-eta = 1
+I stop the iteration after 20 rounds, because the test error for a 5-fold cross validation does not improve any more. The parameters used for xgboost are
 
-params <- list(objective = "multi:softprob",
-      num_class = num_class,
-      max_depth = max_depth,
-      eta = eta
-      )
+-   num\_class = 5, nthread = 4, nfold = 5, nround = 20, max\_depth = 5, eta = 1
+-   params &lt;- list(objective = "multi:softprob", num\_class = num\_class, max\_depth = max\_depth, eta = eta )
 
-cv <- xgb.cv(train.model, params = params, nthread = nthread, nfold = nfold, nround = nround)
-```
-
-    ## [1]  train-merror:0.186640+0.010200  test-merror:0.193558+0.009815 
-    ## [2]  train-merror:0.079286+0.007550  test-merror:0.087506+0.011873 
-    ## [3]  train-merror:0.040592+0.006255  test-merror:0.048925+0.007920 
-    ## [4]  train-merror:0.020143+0.003304  test-merror:0.027877+0.002319 
-    ## [5]  train-merror:0.009785+0.001425  test-merror:0.015849+0.001652 
-    ## [6]  train-merror:0.005083+0.001890  test-merror:0.010090+0.001517 
-    ## [7]  train-merror:0.002765+0.000719  test-merror:0.007084+0.001314 
-    ## [8]  train-merror:0.001363+0.000687  test-merror:0.005351+0.000838 
-    ## [9]  train-merror:0.000675+0.000371  test-merror:0.003720+0.000989 
-    ## [10] train-merror:0.000420+0.000174  test-merror:0.002701+0.000766 
-    ## [11] train-merror:0.000229+0.000131  test-merror:0.002090+0.000672 
-    ## [12] train-merror:0.000115+0.000102  test-merror:0.001580+0.000590 
-    ## [13] train-merror:0.000064+0.000070  test-merror:0.001580+0.000590 
-    ## [14] train-merror:0.000013+0.000026  test-merror:0.001325+0.000494 
-    ## [15] train-merror:0.000000+0.000000  test-merror:0.001274+0.000484 
-    ## [16] train-merror:0.000000+0.000000  test-merror:0.001121+0.000616 
-    ## [17] train-merror:0.000000+0.000000  test-merror:0.000917+0.000525 
-    ## [18] train-merror:0.000000+0.000000  test-merror:0.000815+0.000467 
-    ## [19] train-merror:0.000000+0.000000  test-merror:0.000866+0.000525 
-    ## [20] train-merror:0.000000+0.000000  test-merror:0.000764+0.000484
-
-I stop the iteration after 20 rounds, because the test set error does not improve any more.
-
-Establish model for prediction
-
-``` r
-model <- xgboost(train.model, max.depth = max_depth, eta = eta, nthread = nthread, nround = nround, num_class = num_class, objective = "multi:softmax")
-```
+Establish model for prediction with these parameters
 
     ## [1]  train-merror:0.191061 
     ## [2]  train-merror:0.085771 
@@ -132,12 +61,6 @@ model <- xgboost(train.model, max.depth = max_depth, eta = eta, nthread = nthrea
     ## [18] train-merror:0.000000 
     ## [19] train-merror:0.000000 
     ## [20] train-merror:0.000000
-
-``` r
-# prediction on test data
-predictions <- predict(model, newdata = as.matrix(test.data))
-predictions
-```
 
     ##  [1] 1 0 1 0 0 4 3 1 0 0 1 2 1 0 4 4 0 1 1 1
 
