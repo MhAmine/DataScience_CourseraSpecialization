@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
-We theoretical mean and standard deviation, respectively, of the exponential distribution are 1/lambda. These are to be compared to simulated values for a distribution of 1000 averages of 40 random exponentials:
+The theoretical mean and standard deviation, respectively, of the exponential distribution are 1/lambda. These are to be compared to simulated values for a distribution of 1000 averages of 40 random exponentials:
 
 ```{r}
 set.seed(1)
@@ -20,9 +20,6 @@ lambda = 0.2
 
 mns = NULL
 for (i in 1 : 1000) mns = c(mns, mean(rexp(n, lambda)))
-
-# normalize means
-# mns = mns/n
 
 sim_mean = mean(mns)
 expected_mean = 1/lambda
