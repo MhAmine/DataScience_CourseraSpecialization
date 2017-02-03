@@ -1,15 +1,13 @@
 ---
 title: "Course Project applied machine learning"
-output:
-  github_document:
-    html_preview: true
+output: pdf_document
 ---
 
 Required libraries: library(caret), library(xgboost) and register multicore support with library(doMC) and register...
 
 ```{r setup, include=FALSE}
 rm(list=ls())
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 
 library(caret)
 library(xgboost)
@@ -119,8 +117,11 @@ model <- xgboost(train.model, max.depth = max_depth, eta = eta, nthread = nthrea
 # prediction on test data
 predictions <- predict(model, newdata = as.matrix(test.data))
 predictions
+
 ```
 These are the predictions on the test set. The equivalences are: A=0, B=1 etc....The accuracy on the test set is 100%.
+
+
 
 
 
