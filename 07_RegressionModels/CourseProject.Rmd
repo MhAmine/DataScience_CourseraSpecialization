@@ -1,0 +1,79 @@
+---
+title: "CourseProject_RegressionModels"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+```
+
+## Instructions
+
+You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+
+“Is an automatic or manual transmission better for MPG”
+
+"Quantify the MPG difference between automatic and manual transmissions"
+
+## Analysis
+
+```{r}
+data(mtcars)
+#summary(mtcars)
+
+```
+
+Let us first plot mpg (Miles/gallon) versus am (Transmission(0 = automatic, 1 = manual)). This exploratory plot is shown as the first plot in the appendix. The boxplot shows that the average mpg for cars with manual transmission (~24) is significantly higher than for cars with automatic transmission (~17). 
+
+To get the exact numbers I first do a simple linear regression.
+
+```{r}
+simple_model <- lm(mpg ~ am, data = mtcars)
+summary(simple_model)
+
+```
+
+As mentioned before the automatic cars have an average mpg of 17.7 while the manual cars have 24.4. The slope coefficient is significant (p-value < 0.01) from which I conclude that the mpg is indeed different. But the R-squared value is rather smal, which means that the regression line explains only a small part of the variance. Before perform a multiple regression we first look at the correlations between mpg and the other variables.
+
+```{r}
+cor(mtcars)[1,]
+
+```
+
+The absolute correlations are highest for cyl, disp, hp and wt. Let us use these variables and add "am" to the model
+
+```{r}
+multiple_regr <- lm(mpg ~ am + cyl + disp + hp + wt, data = mtcars)
+summary(multiple_regr)
+```
+This model explains 85% of the variance, is therefore significant better than the first model. However, there are strong correlations between some of the variables, for instance, between cylinders and horse power, which may blow up the variance of the model.
+```{r}
+cor(mtcars$cyl, mtcars$hp)
+```
+
+The second plot of the appendix shows the residuals of this model to confirm that the residuals are normally distributed around zero. 
+
+In conclusion, the model that explains 85% of the variance. It predicts an average increase in MPG by 1.5 between automatic and manual cars. This is however not significant, and therefore one can not say whether manual or automatic cars are better.
+
+## Appendix
+
+```{r, fig.width = 4, fig.height = 3, fig.align = "center"}
+boxplot(mpg ~ am, data = mtcars, names = 
+            c("Automatic", "Manual"), xlab = "Transmission", ylab = "Miles/gallon")
+```
+
+
+```{r}
+par(mfrow = c(1,2))
+
+plot(multiple_regr$residuals, ylab = "resiudals", main = "Residuals of multiple regression")
+hist(multiple_regr$residuals, breaks = 20, xlab = "residuals", main = "Distribution of residuals")
+```
+
+
+
+
+
+
