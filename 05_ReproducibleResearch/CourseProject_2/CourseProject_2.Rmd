@@ -1,5 +1,10 @@
-Damage caused by weather events in the United States between 1996 and 2011
-=================================
+---
+title: "Damage caused by weather events in the United States between 1996 and 2011"
+output:
+  md_document:
+    variant: markdown_github
+
+---
 # Synopsis
 
 In this report I analyze the impact that severe weather events had accross the United States from 1996 to 2011. In partciular I am addressing two questions. The first one is related to harm caused to humans. The second one looks at property and crop damage. I found that the three events with the worst impact on humans are 'excessive heat', 'tornados' and 'floods' both in terms of injuries and in terms of fatalities. The property and crop damages was mostly caused by 'floods' and 'hurricanes/typhons'. 
